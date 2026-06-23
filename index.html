@@ -21,7 +21,7 @@ body{
     text-align:center;
     overflow:hidden;
     
-    background-image: url('https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=1920&q=80');
+    background-image: url('background.jpg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -198,37 +198,6 @@ input:focus, select:focus {
     background: #ffebee;
     color: #c62828;
 }
-
-.status-message.info {
-    background: #e3f2fd;
-    color: #0d47a1;
-}
-
-/* Стили для настроек Telegram */
-.settings-box {
-    background: #f8f9fa;
-    border-radius: 15px;
-    padding: 20px;
-    margin: 20px 0;
-    border: 2px dashed #ff4081;
-}
-
-.settings-box input {
-    margin: 8px 0;
-}
-
-.small-btn {
-    padding: 10px 20px;
-    font-size: 14px;
-    width: auto;
-}
-
-#setupStatus {
-    margin-top: 10px;
-    padding: 10px;
-    border-radius: 10px;
-    font-size: 14px;
-}
 </style>
 </head>
 <body>
@@ -246,51 +215,6 @@ input:focus, select:focus {
 
         <button id="noBtn" class="no" onclick="handleNoClick()">
             Нет 🙈
-        </button>
-
-        <!-- Кнопка для настройки Telegram -->
-        <br>
-        <button onclick="showTelegramSetup()" style="background: #0088cc; color: white; font-size: 14px; padding: 10px 20px;">
-            📱 Настроить Telegram
-        </button>
-    </div>
-
-    <!-- Настройка Telegram -->
-    <div id="telegramSetup" class="hidden">
-        <h2>📱 Настройка Telegram</h2>
-        
-        <div class="settings-box">
-            <h3>Шаг 1: Создай бота</h3>
-            <p style="font-size: 14px; color: #666;">
-                1. Напиши <b>@BotFather</b> в Telegram<br>
-                2. Отправь команду <b>/newbot</b><br>
-                3. Придумай имя и username (заканчивается на "bot")<br>
-                4. Скопируй полученный <b>токен</b>
-            </p>
-            <input type="text" id="botTokenInput" placeholder="Вставь токен бота (например: 123456:ABCdef...)">
-        </div>
-
-        <div class="settings-box">
-            <h3>Шаг 2: Получи Chat ID</h3>
-            <p style="font-size: 14px; color: #666;">
-                1. Напиши своему боту любое сообщение<br>
-                2. Нажми кнопку ниже, чтобы получить ID
-            </p>
-            <button class="small-btn" onclick="getChatId()" style="background: #4caf50; color: white;">
-                🔍 Получить Chat ID
-            </button>
-            <input type="text" id="chatIdInput" placeholder="Chat ID появится здесь" readonly style="margin-top: 10px; background: #f0f0f0;">
-        </div>
-
-        <div id="setupStatus" class="status-message info">
-            💡 После настройки нажми "Сохранить"
-        </div>
-
-        <button onclick="saveTelegramSettings()" style="background: linear-gradient(135deg, #ff4081, #e91e63); color: white;">
-            💾 Сохранить настройки
-        </button>
-        <button onclick="hideTelegramSetup()" style="background: #999; color: white; font-size: 14px; padding: 10px 20px;">
-            ✖️ Закрыть
         </button>
     </div>
 
@@ -321,11 +245,11 @@ input:focus, select:focus {
 <script>
 
 // ============================================
-// ПЕРЕМЕННЫЕ ДЛЯ TELEGRAM (заполнятся автоматически)
+// 📌 ВАШИ НАСТРОЙКИ TELEGRAM (УЖЕ ВСТАВЛЕНЫ!)
 // ============================================
 
-let TELEGRAM_BOT_TOKEN = localStorage.getItem('botToken') || '';
-let TELEGRAM_CHAT_ID = localStorage.getItem('chatId') || '';
+const TELEGRAM_BOT_TOKEN = '8896299041:AAFOYA-kyjHGgYtmWVJSNosks3X_rKUh_J8';
+const TELEGRAM_CHAT_ID = '352662960';
 
 // ============================================
 
@@ -360,8 +284,9 @@ let heartInterval = null;
 
 // Функция отправки в Telegram
 function sendTelegramNotification(date, time) {
-    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
-        return Promise.reject(new Error('Telegram не настроен! Нажмите "Настроить Telegram"'));
+    // Проверяем, что настройки заполнены
+    if (TELEGRAM_BOT_TOKEN === 'YOUR_BOT_TOKEN' || TELEGRAM_CHAT_ID === 'YOUR_CHAT_ID') {
+        return Promise.reject(new Error('Telegram не настроен! Проверьте токен и Chat ID'));
     }
 
     const message = `
@@ -388,109 +313,18 @@ function sendTelegramNotification(date, time) {
         body: JSON.stringify({
             chat_id: TELEGRAM_CHAT_ID,
             text: message,
-            parse_mode: 'HTML'
+            parse_mode: 'HTML',
+            disable_web_page_preview: true
         })
     })
     .then(response => {
         if (!response.ok) {
-            return response.json().then(err => {
-                throw new Error(err.description || 'Ошибка отправки');
+            return response.json().then(data => {
+                throw new Error(data.description || `HTTP error! status: ${response.status}`);
             });
         }
         return response.json();
     });
-}
-
-// Функция для получения Chat ID
-function getChatId() {
-    const token = document.getElementById('botTokenInput').value.trim();
-    if (!token) {
-        document.getElementById('setupStatus').className = 'status-message error';
-        document.getElementById('setupStatus').innerHTML = '❌ Сначала вставь токен бота!';
-        return;
-    }
-
-    document.getElementById('setupStatus').className = 'status-message info';
-    document.getElementById('setupStatus').innerHTML = '⏳ Проверяю бота...';
-
-    const url = `https://api.telegram.org/bot${token}/getUpdates`;
-    
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            if (data.ok && data.result && data.result.length > 0) {
-                // Берем последнее сообщение
-                const lastUpdate = data.result[data.result.length - 1];
-                const chatId = lastUpdate.message?.chat?.id || 
-                              lastUpdate.callback_query?.message?.chat?.id;
-                
-                if (chatId) {
-                    document.getElementById('chatIdInput').value = chatId;
-                    document.getElementById('setupStatus').className = 'status-message success';
-                    document.getElementById('setupStatus').innerHTML = `
-                        ✅ Chat ID найден: <b>${chatId}</b>
-                        <br>Теперь нажми "Сохранить настройки"
-                    `;
-                } else {
-                    throw new Error('Не удалось найти Chat ID');
-                }
-            } else {
-                document.getElementById('setupStatus').className = 'status-message error';
-                document.getElementById('setupStatus').innerHTML = `
-                    ❌ Нет сообщений от бота.
-                    <br>Напиши своему боту что-нибудь в Telegram и нажми "Получить Chat ID" снова
-                `;
-            }
-        })
-        .catch(error => {
-            document.getElementById('setupStatus').className = 'status-message error';
-            document.getElementById('setupStatus').innerHTML = `
-                ❌ Ошибка: ${error.message}
-                <br>Проверь токен бота и что ты написал боту
-            `;
-        });
-}
-
-// Сохранение настроек
-function saveTelegramSettings() {
-    const token = document.getElementById('botTokenInput').value.trim();
-    const chatId = document.getElementById('chatIdInput').value.trim();
-
-    if (!token || !chatId) {
-        document.getElementById('setupStatus').className = 'status-message error';
-        document.getElementById('setupStatus').innerHTML = '❌ Заполни оба поля!';
-        return;
-    }
-
-    // Сохраняем в localStorage
-    localStorage.setItem('botToken', token);
-    localStorage.setItem('chatId', chatId);
-    
-    TELEGRAM_BOT_TOKEN = token;
-    TELEGRAM_CHAT_ID = chatId;
-
-    document.getElementById('setupStatus').className = 'status-message success';
-    document.getElementById('setupStatus').innerHTML = '✅ Настройки сохранены! Теперь можно приглашать на свидание ❤️';
-    
-    setTimeout(() => {
-        hideTelegramSetup();
-    }, 2000);
-}
-
-function showTelegramSetup() {
-    document.getElementById('telegramSetup').classList.remove('hidden');
-    document.getElementById('question').classList.add('hidden');
-    
-    // Загружаем сохраненные значения
-    const savedToken = localStorage.getItem('botToken');
-    const savedChatId = localStorage.getItem('chatId');
-    if (savedToken) document.getElementById('botTokenInput').value = savedToken;
-    if (savedChatId) document.getElementById('chatIdInput').value = savedChatId;
-}
-
-function hideTelegramSetup() {
-    document.getElementById('telegramSetup').classList.add('hidden');
-    document.getElementById('question').classList.remove('hidden');
 }
 
 function moveNoButton() {
@@ -573,38 +407,58 @@ function finish(){
         <h2>🥰 Жду тебя с нетерпением!</h2>
         <p style="margin-top: 20px; font-size: 30px;">💑</p>
         <div id="statusMessage" class="status-message">
-            ⏳ Отправка уведомления...
+            ⏳ Отправка уведомления организатору...
         </div>
     `;
 
-    // Отправляем уведомление
+    // ОТПРАВЛЯЕМ УВЕДОМЛЕНИЕ В TELEGRAM
     sendTelegramNotification(formattedDate, time)
         .then(data => {
             if (data.ok) {
                 document.getElementById('statusMessage').className = 'status-message success';
-                document.getElementById('statusMessage').innerHTML = '✅ Уведомление отправлено в Telegram! 📱';
+                document.getElementById('statusMessage').innerHTML = '✅ Уведомление отправлено организатору в Telegram! 📱';
+                console.log('✅ Уведомление успешно отправлено!', data);
             } else {
                 throw new Error(data.description || 'Неизвестная ошибка');
             }
         })
         .catch(error => {
-            console.error('Ошибка:', error);
+            console.error('❌ Ошибка отправки:', error);
             document.getElementById('statusMessage').className = 'status-message error';
             document.getElementById('statusMessage').innerHTML = `
-                ⚠️ ${error.message}
-                <br>Нажми "Настроить Telegram" для настройки
+                ⚠️ Не удалось отправить уведомление. 
+                <br>Но не волнуйся, я запомнил! ❤️
+                <br><small>Ошибка: ${error.message}</small>
+                <br><small>Проверьте, что бот запущен и вы ему написали</small>
             `;
         });
 }
 
+// Проверяем настройки Telegram при загрузке
 window.addEventListener('load', () => {
     noBtn.style.position = "relative";
     
-    // Проверяем сохраненные настройки
-    if (localStorage.getItem('botToken') && localStorage.getItem('chatId')) {
+    // Проверяем, настроен ли бот
+    if (TELEGRAM_BOT_TOKEN !== 'YOUR_BOT_TOKEN' && TELEGRAM_CHAT_ID !== 'YOUR_CHAT_ID') {
         console.log('✅ Telegram настроен!');
+        console.log('Token:', TELEGRAM_BOT_TOKEN);
+        console.log('Chat ID:', TELEGRAM_CHAT_ID);
+        
+        // Проверяем бота
+        fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getMe`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    console.log('✅ Бот работает!', data.result);
+                } else {
+                    console.warn('⚠️ Бот не отвечает. Проверьте токен');
+                }
+            })
+            .catch(err => {
+                console.warn('⚠️ Не удалось проверить бота:', err);
+            });
     } else {
-        console.log('ℹ️ Telegram не настроен. Нажмите "Настроить Telegram"');
+        console.warn('⚠️ Внимание! Настройте TELEGRAM_BOT_TOKEN и TELEGRAM_CHAT_ID');
     }
 });
 
