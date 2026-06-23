@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Приглашение на свидание ❤️</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    font-family:Arial,sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    overflow:hidden;
+    
+    background-image: url('https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=1920&q=80');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1;
+}
+
+.container{
+    background: rgba(255, 255, 255, 0.95);
+    padding: 40px 30px;
+    border-radius: 25px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    max-width: 550px;
+    width: 90%;
+    z-index: 2;
+    position: relative;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+h1{
+    color:#ff4081;
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+h2 {
+    color: #e91e63;
+    margin: 15px 0 10px;
+}
+
+button{
+    padding: 15px 35px;
+    margin: 10px;
+    border: none;
+    border-radius: 50px;
+    font-size: 18px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 25px rgba(0,0,0,0.3);
+}
+
+.yes{
+    background: linear-gradient(135deg, #4caf50, #66bb6a);
+    color: white;
+}
+
+.yes:hover {
+    background: linear-gradient(135deg, #43a047, #4caf50);
+}
+
+.no{
+    background: linear-gradient(135deg, #f44336, #ef5350);
+    color: white;
+    position: relative;
+}
+
+.no:hover {
+    background: linear-gradient(135deg, #d32f2f, #f44336);
+}
+
+input, select {
+    width: 100%;
+    padding: 14px;
+    margin-top: 8px;
+    border-radius: 12px;
+    border: 2px solid #ffcdd2;
+    box-sizing: border-box;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background: rgba(255,255,255,0.9);
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: #ff4081;
+    box-shadow: 0 0 20px rgba(255,64,129,0.2);
+}
+
+.hidden{
+    display:none;
+}
+
+.heart{
+    position:fixed;
+    top:-20px;
+    font-size:25px;
+    animation:fall 4s linear forwards;
+    pointer-events:none;
+    z-index:9999;
+    filter: drop-shadow(0 0 10px rgba(255,0,0,0.3));
+}
+
+@keyframes fall{
+    to{
+        transform:translateY(110vh) rotate(720deg);
+        opacity:0;
+    }
+}
+
+#result h1 {
+    font-size: 32px;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+#result p {
+    font-size: 20px;
+    margin: 10px 0;
+    color: #333;
+}
+
+#result b {
+    color: #e91e63;
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 25px 20px;
+        margin: 15px;
+    }
+    
+    h1 {
+        font-size: 22px;
+    }
+    
+    button {
+        padding: 12px 25px;
+        font-size: 16px;
+        width: 80%;
+    }
+    
+    #result h1 {
+        font-size: 24px;
+    }
+}
+
+.status-message {
+    font-size: 14px;
+    color: #666;
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 10px;
+    background: #f5f5f5;
+}
+
+.status-message.success {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-message.error {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.status-message.info {
+    background: #e3f2fd;
+    color: #0d47a1;
+}
+
+/* Стили для настроек Telegram */
+.settings-box {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px 0;
+    border: 2px dashed #ff4081;
+}
+
+.settings-box input {
+    margin: 8px 0;
+}
+
+.small-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    width: auto;
+}
+
+#setupStatus {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 14px;
+}
+</style>
+</head>
+<body>
+
+<audio id="loveMusic" loop></audio>
+
+<div class="container">
+
+    <div id="question">
+        <h1>❤️ Пойдёшь со мной на свидание? ❤️</h1>
+
+        <button class="yes" onclick="showForm()">
+            Да 😍
+        </button>
+
+        <button id="noBtn" class="no" onclick="handleNoClick()">
+            Нет 🙈
+        </button>
+
+        <!-- Кнопка для настройки Telegram -->
+        <br>
+        <button onclick="showTelegramSetup()" style="background: #0088cc; color: white; font-size: 14px; padding: 10px 20px;">
+            📱 Настроить Telegram
+        </button>
+    </div>
+
+    <!-- Настройка Telegram -->
+    <div id="telegramSetup" class="hidden">
+        <h2>📱 Настройка Telegram</h2>
+        
+        <div class="settings-box">
+            <h3>Шаг 1: Создай бота</h3>
+            <p style="font-size: 14px; color: #666;">
+                1. Напиши <b>@BotFather</b> в Telegram<br>
+                2. Отправь команду <b>/newbot</b><br>
+                3. Придумай имя и username (заканчивается на "bot")<br>
+                4. Скопируй полученный <b>токен</b>
+            </p>
+            <input type="text" id="botTokenInput" placeholder="Вставь токен бота (например: 123456:ABCdef...)">
+        </div>
+
+        <div class="settings-box">
+            <h3>Шаг 2: Получи Chat ID</h3>
+            <p style="font-size: 14px; color: #666;">
+                1. Напиши своему боту любое сообщение<br>
+                2. Нажми кнопку ниже, чтобы получить ID
+            </p>
+            <button class="small-btn" onclick="getChatId()" style="background: #4caf50; color: white;">
+                🔍 Получить Chat ID
+            </button>
+            <input type="text" id="chatIdInput" placeholder="Chat ID появится здесь" readonly style="margin-top: 10px; background: #f0f0f0;">
+        </div>
+
+        <div id="setupStatus" class="status-message info">
+            💡 После настройки нажми "Сохранить"
+        </div>
+
+        <button onclick="saveTelegramSettings()" style="background: linear-gradient(135deg, #ff4081, #e91e63); color: white;">
+            💾 Сохранить настройки
+        </button>
+        <button onclick="hideTelegramSetup()" style="background: #999; color: white; font-size: 14px; padding: 10px 20px;">
+            ✖️ Закрыть
+        </button>
+    </div>
+
+    <div id="form" class="hidden">
+        <h2>📅 Выбери удобную дату</h2>
+        <input type="date" id="date" min="2026-06-24">
+
+        <h2>🕒 Выбери время</h2>
+        <select id="time">
+            <option>17:00</option>
+            <option>18:00</option>
+            <option>19:00</option>
+            <option>20:00</option>
+            <option>21:00</option>
+        </select>
+
+        <br><br>
+
+        <button class="yes" onclick="finish()">
+            Подтвердить ❤️
+        </button>
+    </div>
+
+    <div id="result" class="hidden"></div>
+
+</div>
+
+<script>
+
+// ============================================
+// ПЕРЕМЕННЫЕ ДЛЯ TELEGRAM (заполнятся автоматически)
+// ============================================
+
+let TELEGRAM_BOT_TOKEN = localStorage.getItem('botToken') || '';
+let TELEGRAM_CHAT_ID = localStorage.getItem('chatId') || '';
+
+// ============================================
+
+const noBtn = document.getElementById("noBtn");
+const container = document.querySelector('.container');
+
+const texts = [
+  "Поцелуй 💋",
+  "Обнять ❤️",
+  "Ну пожалуйста 🥺",
+  "Да 😘",
+  "Согласна 💖",
+  "Иди ко мне 💕",
+  "Хочу тебя ❤️",
+  "Ладно уже 😏",
+  "Может да? 😌",
+  "Ну ты настойчивая 😄",
+  "Я подумаю… 💭",
+  "Окей 💘",
+  "Сдаюсь 😅",
+  "Иди сюда 💞",
+  "Люблю такие вопросы ❤️",
+  "Согласна на всё 😳",
+  "Ты выиграл 🏆",
+  "Дааааааа 😍",
+  "Берёшь меня? 💋",
+  "Конечно да ❤️🔥"
+];
+
+let index = 0;
+let heartInterval = null;
+
+// Функция отправки в Telegram
+function sendTelegramNotification(date, time) {
+    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
+        return Promise.reject(new Error('Telegram не настроен! Нажмите "Настроить Telegram"'));
+    }
+
+    const message = `
+❤️❤️❤️ НОВОЕ СВИДАНИЕ! ❤️❤️❤️
+
+📅 Дата: ${date}
+🕒 Время: ${time}
+
+💕 Девушка согласилась на свидание!
+
+🔥 Готовься к романтическому вечеру!
+💑 Любовь в воздухе!
+
+#свидание #любовь #романтика
+    `;
+
+    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+    
+    return fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            chat_id: TELEGRAM_CHAT_ID,
+            text: message,
+            parse_mode: 'HTML'
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw new Error(err.description || 'Ошибка отправки');
+            });
+        }
+        return response.json();
+    });
+}
+
+// Функция для получения Chat ID
+function getChatId() {
+    const token = document.getElementById('botTokenInput').value.trim();
+    if (!token) {
+        document.getElementById('setupStatus').className = 'status-message error';
+        document.getElementById('setupStatus').innerHTML = '❌ Сначала вставь токен бота!';
+        return;
+    }
+
+    document.getElementById('setupStatus').className = 'status-message info';
+    document.getElementById('setupStatus').innerHTML = '⏳ Проверяю бота...';
+
+    const url = `https://api.telegram.org/bot${token}/getUpdates`;
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.ok && data.result && data.result.length > 0) {
+                // Берем последнее сообщение
+                const lastUpdate = data.result[data.result.length - 1];
+                const chatId = lastUpdate.message?.chat?.id || 
+                              lastUpdate.callback_query?.message?.chat?.id;
+                
+                if (chatId) {
+                    document.getElementById('chatIdInput').value = chatId;
+                    document.getElementById('setupStatus').className = 'status-message success';
+                    document.getElementById('setupStatus').innerHTML = `
+                        ✅ Chat ID найден: <b>${chatId}</b>
+                        <br>Теперь нажми "Сохранить настройки"
+                    `;
+                } else {
+                    throw new Error('Не удалось найти Chat ID');
+                }
+            } else {
+                document.getElementById('setupStatus').className = 'status-message error';
+                document.getElementById('setupStatus').innerHTML = `
+                    ❌ Нет сообщений от бота.
+                    <br>Напиши своему боту что-нибудь в Telegram и нажми "Получить Chat ID" снова
+                `;
+            }
+        })
+        .catch(error => {
+            document.getElementById('setupStatus').className = 'status-message error';
+            document.getElementById('setupStatus').innerHTML = `
+                ❌ Ошибка: ${error.message}
+                <br>Проверь токен бота и что ты написал боту
+            `;
+        });
+}
+
+// Сохранение настроек
+function saveTelegramSettings() {
+    const token = document.getElementById('botTokenInput').value.trim();
+    const chatId = document.getElementById('chatIdInput').value.trim();
+
+    if (!token || !chatId) {
+        document.getElementById('setupStatus').className = 'status-message error';
+        document.getElementById('setupStatus').innerHTML = '❌ Заполни оба поля!';
+        return;
+    }
+
+    // Сохраняем в localStorage
+    localStorage.setItem('botToken', token);
+    localStorage.setItem('chatId', chatId);
+    
+    TELEGRAM_BOT_TOKEN = token;
+    TELEGRAM_CHAT_ID = chatId;
+
+    document.getElementById('setupStatus').className = 'status-message success';
+    document.getElementById('setupStatus').innerHTML = '✅ Настройки сохранены! Теперь можно приглашать на свидание ❤️';
+    
+    setTimeout(() => {
+        hideTelegramSetup();
+    }, 2000);
+}
+
+function showTelegramSetup() {
+    document.getElementById('telegramSetup').classList.remove('hidden');
+    document.getElementById('question').classList.add('hidden');
+    
+    // Загружаем сохраненные значения
+    const savedToken = localStorage.getItem('botToken');
+    const savedChatId = localStorage.getItem('chatId');
+    if (savedToken) document.getElementById('botTokenInput').value = savedToken;
+    if (savedChatId) document.getElementById('chatIdInput').value = savedChatId;
+}
+
+function hideTelegramSetup() {
+    document.getElementById('telegramSetup').classList.add('hidden');
+    document.getElementById('question').classList.remove('hidden');
+}
+
+function moveNoButton() {
+    index++;
+    
+    if(index < texts.length){
+        noBtn.innerText = texts[index];
+    }
+    
+    const containerRect = container.getBoundingClientRect();
+    const btnRect = noBtn.getBoundingClientRect();
+    
+    const maxLeft = containerRect.width - btnRect.width - 20;
+    const maxTop = containerRect.height - btnRect.height - 20;
+    
+    const randomLeft = Math.random() * maxLeft;
+    const randomTop = Math.random() * maxTop;
+    
+    noBtn.style.position = "absolute";
+    noBtn.style.left = randomLeft + "px";
+    noBtn.style.top = randomTop + "px";
+    noBtn.style.margin = "0";
+}
+
+noBtn.addEventListener("mouseover", moveNoButton);
+
+function handleNoClick() {
+    moveNoButton();
+}
+
+function showForm(){
+    const music = document.getElementById("loveMusic");
+    music.play().catch(() => {
+        console.log("Музыка не загружена");
+    });
+
+    if (!heartInterval) {
+        heartInterval = setInterval(() => {
+            const heart = document.createElement("div");
+            heart.className = "heart";
+            const emojis = ["❤️","💕","💖","💘","💝","💗","💓","♥️"];
+            heart.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
+            heart.style.left = Math.random() * 100 + "vw";
+            heart.style.fontSize = (20 + Math.random() * 35) + "px";
+            heart.style.animationDuration = (3 + Math.random() * 2) + "s";
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 5000);
+        }, 150);
+    }
+
+    document.getElementById("question").classList.add("hidden");
+    document.getElementById("form").classList.remove("hidden");
+}
+
+function finish(){
+    let date = document.getElementById("date").value;
+    let time = document.getElementById("time").value;
+
+    if(!date){
+        alert("Выбери дату ❤️");
+        return;
+    }
+
+    if (heartInterval) {
+        clearInterval(heartInterval);
+        heartInterval = null;
+    }
+
+    const dateObj = new Date(date + 'T00:00:00');
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const formattedDate = dateObj.toLocaleDateString('ru-RU', options);
+
+    document.getElementById("form").classList.add("hidden");
+    document.getElementById("result").classList.remove("hidden");
+    
+    document.getElementById("result").innerHTML = `
+        <h1>🎉 Ты приглашена на свидание ❤️</h1>
+        <p><b>📅 Дата:</b> ${formattedDate}</p>
+        <p><b>🕒 Время:</b> ${time}</p>
+        <h2>🥰 Жду тебя с нетерпением!</h2>
+        <p style="margin-top: 20px; font-size: 30px;">💑</p>
+        <div id="statusMessage" class="status-message">
+            ⏳ Отправка уведомления...
+        </div>
+    `;
+
+    // Отправляем уведомление
+    sendTelegramNotification(formattedDate, time)
+        .then(data => {
+            if (data.ok) {
+                document.getElementById('statusMessage').className = 'status-message success';
+                document.getElementById('statusMessage').innerHTML = '✅ Уведомление отправлено в Telegram! 📱';
+            } else {
+                throw new Error(data.description || 'Неизвестная ошибка');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            document.getElementById('statusMessage').className = 'status-message error';
+            document.getElementById('statusMessage').innerHTML = `
+                ⚠️ ${error.message}
+                <br>Нажми "Настроить Telegram" для настройки
+            `;
+        });
+}
+
+window.addEventListener('load', () => {
+    noBtn.style.position = "relative";
+    
+    // Проверяем сохраненные настройки
+    if (localStorage.getItem('botToken') && localStorage.getItem('chatId')) {
+        console.log('✅ Telegram настроен!');
+    } else {
+        console.log('ℹ️ Telegram не настроен. Нажмите "Настроить Telegram"');
+    }
+});
+
+</script>
+
+</body>
+</html>
