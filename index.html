@@ -247,9 +247,9 @@ input:focus, select:focus {
 // ============================================
 // 📌 ВАШИ НАСТРОЙКИ TELEGRAM (УЖЕ ВСТАВЛЕНЫ!)
 // ============================================
-
-const TELEGRAM_BOT_TOKEN = '8896299041:AAFOYA-kyjHGgYtmWVJSNosks3X_rKUh_J8';
-const TELEGRAM_CHAT_ID = '352662960';
+const SCRIPT_URL =
+'https://script.google.com/macros/s/AKfycbywKVXjDQ03pq-0aYZxxQaGyKOAdB5L1-p_dWoBNZ5vNsdyKWK1e4zaabNDkLoHnf_V/exec';
+    
 
 // ============================================
 
@@ -284,10 +284,25 @@ let heartInterval = null;
 
 // Функция отправки в Telegram
 function sendTelegramNotification(date, time) {
-    // Проверяем, что настройки заполнены
-    if (TELEGRAM_BOT_TOKEN === 'YOUR_BOT_TOKEN' || TELEGRAM_CHAT_ID === 'YOUR_CHAT_ID') {
-        return Promise.reject(new Error('Telegram не настроен! Проверьте токен и Chat ID'));
-    }
+
+    return fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            date: date,
+            time: time
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Ошибка отправки');
+        }
+        return response.json();
+    });
+
+}
 
     const message = `
 ❤️❤️❤️ НОВОЕ СВИДАНИЕ! ❤️❤️❤️
@@ -434,32 +449,8 @@ function finish(){
         });
 }
 
-// Проверяем настройки Telegram при загрузке
-window.addEventListener('load', () => {
-    noBtn.style.position = "relative";
-    
-    // Проверяем, настроен ли бот
-    if (TELEGRAM_BOT_TOKEN !== 'YOUR_BOT_TOKEN' && TELEGRAM_CHAT_ID !== 'YOUR_CHAT_ID') {
-        console.log('✅ Telegram настроен!');
-        console.log('Token:', TELEGRAM_BOT_TOKEN);
-        console.log('Chat ID:', TELEGRAM_CHAT_ID);
+
         
-        // Проверяем бота
-        fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getMe`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.ok) {
-                    console.log('✅ Бот работает!', data.result);
-                } else {
-                    console.warn('⚠️ Бот не отвечает. Проверьте токен');
-                }
-            })
-            .catch(err => {
-                console.warn('⚠️ Не удалось проверить бота:', err);
-            });
-    } else {
-        console.warn('⚠️ Внимание! Настройте TELEGRAM_BOT_TOKEN и TELEGRAM_CHAT_ID');
-    }
 });
 
 </script>
