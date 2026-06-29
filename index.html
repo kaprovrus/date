@@ -248,9 +248,20 @@ input:focus, select:focus {
 // 📌 ВАШИ НАСТРОЙКИ TELEGRAM (УЖЕ ВСТАВЛЕНЫ!)
 // ============================================
 
-const TELEGRAM_BOT_TOKEN = '8896299041:AAFOYA-kyjHGgYtmWVJSNosks3X_rKUh_J8';
-const TELEGRAM_CHAT_ID = '352662960';
+function sendTelegramNotification(date,time){
 
+    return fetch("https://script.google.com/macros/s/AKfycbz_UsWkXJFXOrVxEfMNBL3FRI52tYSRbJ3zE8lrEioCeV0F5YOw6_YcLV--bUKUIKoc/exec",{
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+            date:date,
+            time:time
+        })
+    }).then(r=>r.json());
+
+}
 // ============================================
 
 const noBtn = document.getElementById("noBtn");
