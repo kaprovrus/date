@@ -248,18 +248,16 @@ input:focus, select:focus {
 // 📌 ВАШИ НАСТРОЙКИ TELEGRAM (УЖЕ ВСТАВЛЕНЫ!)
 // ============================================
 
-function sendTelegramNotification(date,time){
+function sendTelegramNotification(date, time) {
 
-    return fetch("https://script.google.com/macros/s/AKfycbz_UsWkXJFXOrVxEfMNBL3FRI52tYSRbJ3zE8lrEioCeV0F5YOw6_YcLV--bUKUIKoc/exec",{
-        method:"POST",
-        headers:{
-            "Content-Type":"application/json"
-        },
-        body:JSON.stringify({
-            date:date,
-            time:time
-        })
-    }).then(r=>r.json());
+    const formData = new FormData();
+    formData.append("date", date);
+    formData.append("time", time);
+
+    return fetch("https://script.google.com/macros/s/AKfycbz_UsWkXJFXOrVxEfMNBL3FRI52tYSRbJ3zE8lrEioCeV0F5YOw6_YcLV--bUKUIKoc/exec", {
+        method: "POST",
+        body: formData
+    }).then(r => r.json());
 
 }
 // ============================================
